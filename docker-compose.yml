@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  php-pubsub:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    container_name: php-pubsub-kafka
+    volumes:
+      - .:/var/www
+    networks:
+      - kafka-pubsub
+  nginx-pubsub:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: nginx-pubsub-kafka
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/confs/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 8989:80
+    networks:
+      - kafka-pubsub
+  zookeeper:
+    image: "wurstmeister/zookeeper"
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    networks:
+      - kafka-pubsub
+  kafka:
+    image: "wurstmeister/kafka"
+    container_name: kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CREATE_TOPICS: "ecommerce_order:1:1, ecommerce_send_mail:1:1"
+    networks:
+      - kafka-pubsub
+
+networks:
+  kafka-pubsub:
+    name: "kafka-pubsub"

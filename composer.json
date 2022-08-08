@@ -1,0 +1,17 @@
+{
+    "name": "guilhermesantos/php-pubsub-kafka",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Guilhermesantos\\PhpPubsubKafka\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Guilherme Mariano",
+            "email": "guilhermemarianosantos@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
